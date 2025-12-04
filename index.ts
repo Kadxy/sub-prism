@@ -17,11 +17,9 @@ async function main() {
         return;
     }
 
-    console.log("\n╔════════════════════════════════════════╗");
-    console.log("║         💎 Sub-Prism Running           ║");
-    console.log("╚════════════════════════════════════════╝");
+    console.log(`💎 Sub-Prism 💎`)
+
     console.log(`\n📥 Input: ${nodeLinks.length} links`);
-    console.time("⏱️ Total Time");
 
     // ----------------------------------------------------
     // Phase 1: ETL (Extract, Transform, Load to Memory)
@@ -43,7 +41,8 @@ async function main() {
             const matchEntry = Object.entries(USER_MAP).find(([_, regex]) => regex.test(label));
 
             if (!matchEntry) {
-                skippedNum++; // Only tracking skips as requested
+                skippedNum++;
+                console.warn(`   [Skip] Unmatched label: ${label}`);
                 continue;
             }
             const username = matchEntry[0];
@@ -53,7 +52,7 @@ async function main() {
 
             if (!targetTag) {
                 skippedNum++;
-                console.warn(`⚠️  [Skip] Unknown hostname: ${url.hostname}`);
+                console.warn(`   [Skip] Unknown hostname: ${url.hostname}`);
                 continue;
             }
 
@@ -63,16 +62,24 @@ async function main() {
 
         } catch (e) {
             skippedNum++;
-            console.error(`❌ Parse Error: ${rawLink.substring(0, 30)}...`);
+            console.error(`   ❌  Parse Error: ${rawLink.substring(0, 30)}...`);
         }
     }
 
-    console.log(`${skippedNum ? `⚠️ Skipped: ${skippedNum} links` : "✅ All links processed successfully"}\n`);
+    console.log(`${skippedNum ? `⚠️  Skipped: ${skippedNum}/${nodeLinks.length} links` : "✅  All links processed successfully"}`);
+
+    // Check if there are any links to process
+    const totalLinks = Object.values(userBuckets).reduce((sum, links) => sum + links.length, 0);
+    if (totalLinks === 0) {
+        console.log("\n❌  No valid links to upload. Exiting.");
+        console.timeEnd("⏱️ Total Time");
+        return;
+    }
 
     // ----------------------------------------------------
     // Phase 2: Distribution & Reporting
     // ----------------------------------------------------
-    console.log("🚀 Uploading to R2...");
+    console.log("\n🚀  Uploading to R2...");
 
     const reportData: string[] = ["User,Regex,Subscription Link,Node Count"]; // CSV Header
 
@@ -95,7 +102,7 @@ async function main() {
 
             const finalUrl = `${ENV.R2_PUBLIC_DOMAIN}/${secureFilename}`;
             const userRegex = USER_MAP[username]?.toString() || "";
-            console.log(`   ✓ ${username.padEnd(12)} ${links.length} nodes`);
+            console.log(`   ✅  ${username.padEnd(12)} ${links.length} nodes`);
 
             // Collect data for report
             reportData.push(`${username},"${userRegex}",${finalUrl},${links.length}`);
@@ -119,14 +126,8 @@ async function main() {
         const filename = generateReportFilename();
         const filePath = path.join(resultsDir, filename);
         fs.writeFileSync(filePath, reportData.join("\n"));
-        console.log(`\n📄 Report: ${filename}`);
+        console.log(`\n📄   Report: ${filename}`);
     }
-
-    if (skippedNum > 0) {
-        console.log(`⚠️ Skipped: ${skippedNum} links`);
-    }
-
-    console.timeEnd("⏱️ Total Time");
 }
 
 main();
