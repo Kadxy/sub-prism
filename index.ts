@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { SERVER_MAP, USER_MAP, RAW_NODE_LINKS } from "./config.js";
+import { SERVER_MAP, USER_MAP } from "./config.js";
 import { generateSecureFilename, safeDecode, generateReportFilename, parseNodeLinks } from "./utils.js";
 import { ENV } from "./env.js";
 import { s3Client } from "./s3.js";
@@ -11,7 +11,7 @@ async function main() {
     let nodeLinks: string[] = [];
 
     try {
-        nodeLinks = parseNodeLinks(RAW_NODE_LINKS);
+        nodeLinks = parseNodeLinks(ENV.RAW_NODE_LINKS);
     } catch (e) {
         console.error(`❌ Parse Error: ${e}`);
         return;

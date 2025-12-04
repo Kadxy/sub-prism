@@ -10,6 +10,7 @@ const REQUIRED_KEYS = [
     "R2_BUCKET_NAME",
     "R2_PUBLIC_DOMAIN",
     "FILENAME_SALT",
+    "RAW_NODE_LINKS",
 ] as const;
 
 // Type definition derived from keys

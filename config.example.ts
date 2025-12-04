@@ -13,9 +13,3 @@ export const USER_MAP: UserMap = {
     "Amy": /_u2$/,
     "John": /_u3$/,
 };
-
-// Paste your node links here, one per line
-export const RAW_NODE_LINKS = `
-vless://xxx@1.1.1.1:443?...#node1
-vless://xxx@2.2.2.2:443?...#node2
-`;
